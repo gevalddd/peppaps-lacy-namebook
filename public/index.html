@@ -29,9 +29,12 @@
 .card:nth-child(8) .art{background:url("https://raw.githubusercontent.com/gevalddd/peppaps-lacy-namebook/main/public/images/morgenstern.jpg") center 42%/cover}
 .feature:after{content:"";display:block;width:120px;height:120px;border:1px solid #e8c88755;border-radius:12px;background:url("https://raw.githubusercontent.com/gevalddd/peppaps-lacy-namebook/main/public/images/morgenstern.jpg") center/cover}
 @media(max-width:650px){.hero:before{width:160px;height:160px}.art{height:210px}.feature:after{width:100%;height:220px}}
+.language-toggle{position:absolute;top:16px;right:16px;z-index:2;border:1px solid #e8c88766;background:#e8c88712;color:var(--gold);border-radius:30px;padding:9px 14px;font:600 11px Arial,sans-serif;letter-spacing:.08em;cursor:pointer}.language-toggle:hover{background:#e8c88726}.language-toggle:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+html[lang="de"] .kicker{letter-spacing:.12em}html[lang="de"] .names{letter-spacing:.1em}@media(max-width:650px){html[lang="de"] .names{flex-wrap:wrap}}
 </style></head>
 <body><main class="wrap">
 <header class="hero">
+<button class="language-toggle" id="language-toggle" type="button" aria-label="Switch to German">Deutsch</button>
 <svg class="crest" viewBox="0 0 180 180" role="img" aria-label="Original fantasy crest with two crossed blades and a star"><defs><linearGradient id="g" x2="0" y2="1"><stop stop-color="#f3d99e"/><stop offset="1" stop-color="#a94c62"/></linearGradient></defs><path d="M90 8 151 34 143 112 90 166 37 112 29 34Z" fill="#1a1421" stroke="url(#g)" stroke-width="2"/><path d="M56 116 124 48M64 48l60 68" stroke="#e9d29f" stroke-width="5" stroke-linecap="round"/><path d="m90 26 5 13 14 1-11 9 4 14-12-8-12 8 4-14-11-9 14-1Z" fill="#e8c887"/><circle cx="90" cy="91" r="15" fill="#a8475e" stroke="#f0d69f" stroke-width="2"/><path d="M90 77v28M76 91h28" stroke="#f7e7c6" stroke-width="2"/></svg>
 <div class="kicker">A new world • A shared banner • One house</div>
 <h1>Peppaps <span>&</span> Lacy</h1>
@@ -52,5 +55,47 @@
 <section class="feature"><div><div class="tag">A final thought</div><h2>One name. Two players. A whole new world.</h2><p>From Peppaps and Lacy in Last War to whatever awaits us in WoW. Pick the banner you both want to carry — and let the next chapter begin.</p></div><svg class="seal" viewBox="0 0 120 120"><path d="M60 5 105 24 99 80 60 114 21 80 15 24Z" fill="#211725" stroke="#e8c887" stroke-width="2"/><path d="m60 19 8 25 25 8-25 8-8 25-8-25-25-8 25-8Z" fill="#a74a60"/><circle cx="60" cy="52" r="9" fill="#f0dba9"/><path d="M34 89h52" stroke="#e8c887" stroke-width="2"/></svg></section>
 <footer class="footer">MADE FOR PEPPAPS & LACY · NEW ADVENTURE, SAME TEAM</footer>
 </main><div class="toast" id="toast">Surname copied</div>
-<script>const toast=document.getElementById('toast');let timer;document.querySelectorAll('.copy').forEach(b=>b.addEventListener('click',async()=>{const n=b.dataset.name;try{await navigator.clipboard.writeText(n)}catch(e){const t=document.createElement('textarea');t.value=n;document.body.appendChild(t);t.select();document.execCommand('copy');t.remove()}toast.textContent=n+' copied';toast.classList.add('show');clearTimeout(timer);timer=setTimeout(()=>toast.classList.remove('show'),1500)}));</script>
+<script>
+const toast=document.getElementById("toast");let toastTimer;let currentLanguage="en";
+const germanText={
+"A new world • A shared banner • One house":"Eine neue Welt • Ein gemeinsames Banner • Ein Haus",
+"We left one battlefield behind. Tomorrow, a new world opens. Before we enter it, let’s choose the name our characters will carry together.":"Wir haben ein Schlachtfeld hinter uns gelassen. Morgen öffnet sich eine neue Welt. Bevor wir sie betreten, wählen wir den Namen, den unsere Charaktere gemeinsam tragen werden.",
+"Israeli roots":"Israelische Wurzeln","German roots":"Deutsche Wurzeln","One adventure":"Ein gemeinsames Abenteuer",
+"Choose our house name":"Wählt euren Familiennamen","Dark fantasy • Anime edge • Warcraft spirit":"Dunkle Fantasy • Anime-Flair • Warcraft-Geist",
+"Dark • Noble • Mysterious":"Dunkel • Vornehm • Geheimnisvoll",
+"A shadowy old house with a raven on its banner. Elegant, ominous, and easy to remember.":"Ein geheimnisvolles altes Haus mit einem Raben auf dem Banner. Elegant, düster und leicht zu merken.",
+"A strong all-rounder":"Ein starker Allrounder","Copy surname":"Nachnamen kopieren",
+"Japanese-inspired • Steel • Warrior":"Japanisch inspiriert • Stahl • Kriegerisch",
+"A Japanese word associated with iron or steel. Short, sharp, and built for a warrior dynasty.":"Ein japanisches Wort, das mit Eisen oder Stahl verbunden ist. Kurz, markant und wie geschaffen für eine Kriegerdynastie.",
+"Best anime influence":"Am stärksten vom Anime geprägt",
+"Dramatic • Legendary • Fierce":"Dramatisch • Legendär • Wild",
+"A red moon above a kingdom at war. A bold fantasy name with a strong visual identity.":"Ein roter Mond über einem Königreich im Krieg. Ein kraftvoller Fantasy-Name mit starker visueller Wirkung.",
+"Most cinematic":"Am filmreifsten",
+"Elegant • Deadly • Timeless":"Elegant • Tödlich • Zeitlos",
+"A beautiful name with a poisonous edge. Quiet danger rather than brute force.":"Ein schöner Name mit einer giftigen Note. Leise Gefahr statt roher Gewalt.",
+"Most elegant":"Am elegantesten",
+"Aggressive • Martial • Bold":"Kämpferisch • Martialisch • Kühn",
+"A fierce warrior house. Sounds like a name enemies would learn to fear.":"Ein wildes Kriegerhaus. Ein Name, den seine Feinde fürchten würden.",
+"Most battle-ready":"Am kampfbereitesten",
+"Ancient • Arcane • Secretive":"Uralte Magie • Arkan • Geheimnisvoll",
+"A forgotten order hidden behind a veil. Dark, magical, and distinctly fantasy.":"Ein vergessener Orden, verborgen hinter einem Schleier. Düster, magisch und eindeutig Fantasy.",
+"Most mysterious":"Am geheimnisvollsten",
+"Shadow • Heritage • Power":"Schatten • Herkunft • Stärke",
+"Two characters with a shared origin story. A clean, classic fantasy surname.":"Zwei Figuren mit einer gemeinsamen Herkunftsgeschichte. Ein klarer, klassischer Fantasy-Nachname.",
+"Most classic fantasy":"Am klassischsten im Fantasy-Stil",
+"German roots • Celestial • Noble":"Deutsche Wurzeln • Himmlisch • Vornehm",
+"German for “morning star.” A real German surname with a naturally mythic, hopeful feel.":"Der Name bezeichnet den Morgenstern. Ein echter deutscher Familienname mit mythisch-hoffnungsvollem Klang.",
+"Best heritage connection":"Stärkste Verbindung zu den Wurzeln",
+"A final thought":"Ein letzter Gedanke",
+"One name. Two players. A whole new world.":"Ein Name. Zwei Spieler. Eine ganz neue Welt.",
+"From Peppaps and Lacy in Last War to whatever awaits us in WoW. Pick the banner you both want to carry — and let the next chapter begin.":"Von Peppaps und Lacy in Last War bis zu allem, was uns in WoW erwartet. Wählt das Banner, das ihr gemeinsam tragen wollt – und beginnt euer nächstes Kapitel.",
+"MADE FOR PEPPAPS & LACY · NEW ADVENTURE, SAME TEAM":"FÜR PEPPAPS & LACY GEMACHT · NEUES ABENTEUER, DASSELBE TEAM",
+"Surname copied":"Nachname kopiert"
+};
+const translatableElements=document.querySelectorAll(".kicker,.subtitle,.names span,.section-head h2,.section-head p,.tag,.meaning,.note,.copy,.feature h2,.feature p,.footer,.toast");
+translatableElements.forEach(element=>{element.dataset.english=element.textContent.trim()});
+function setLanguage(language){currentLanguage=language;document.documentElement.lang=language;document.title=language==="de"?"Peppaps & Lacy — Unser gemeinsamer Name":"Peppaps & Lacy — Choose Our House Name";translatableElements.forEach(element=>{const englishText=element.dataset.english;element.textContent=language==="de"?(germanText[englishText]||englishText):englishText});document.querySelector(".grid").setAttribute("aria-label",language==="de"?"Nachnamen zur Auswahl":"Surname options");const languageToggle=document.getElementById("language-toggle");languageToggle.textContent=language==="de"?"English":"Deutsch";languageToggle.setAttribute("aria-label",language==="de"?"Auf Englisch wechseln":"Switch to German")}
+document.getElementById("language-toggle").addEventListener("click",()=>setLanguage(currentLanguage==="de"?"en":"de"));
+document.querySelectorAll(".copy").forEach(button=>button.addEventListener("click",async()=>{const surname=button.dataset.name;try{await navigator.clipboard.writeText(surname)}catch(error){const fallback=document.createElement("textarea");fallback.value=surname;document.body.appendChild(fallback);fallback.select();document.execCommand("copy");fallback.remove()}toast.textContent=currentLanguage==="de"?surname+" kopiert":surname+" copied";toast.classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>toast.classList.remove("show"),1500)}));
+</script>
 </body></html>
